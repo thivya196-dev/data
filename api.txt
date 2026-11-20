@@ -1,0 +1,158 @@
+[10:54, 20/11/2026] Tharu: CSS
+body {
+    font-family: Arial, sans-serif;
+    background: #eaf4ff;
+    margin: 0;
+    padding: 30px;
+}
+
+.container {
+    max-width: 450px;
+    margin: auto;
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    color: #0077b6;
+}
+
+input {
+    padding: 10px;
+    width: 65%;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+
+button {
+    padding: 10px;
+    background: #0077b6;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #023e8a;
+}
+
+#status {
+    margin: 20px 0;
+}
+
+.weather-card {
+    background: #caf0f8;
+    padding: 20px;
+    border-radius: 10px;
+}
+
+.error {
+    color: red;
+}
+
+.loading {
+    color: #0077b6;
+}
+
+.empty {
+    color: gray;
+}
+[10:56, 20/11/2026] Tharu: JavaScript
+const cityInput = document.getElementById("cityInput");
+const searchBtn = document.getElementById("searchBtn");
+const statusDiv = document.getElementById("status");
+const weatherDiv = document.getElementById("weather");
+
+// Fetch weather data
+async function getWeather(city) {
+    statusDiv.textContent = "Loading...";
+    statusDiv.className = "loading";
+    weatherDiv.innerHTML = "";
+ try {
+        // Get city coordinates
+        const geoUrl =
+            https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1;
+
+        const geoResponse = await fetch(geoUrl);
+
+        if (!geoResponse.ok) {
+            throw new Error("Failed to fetch city data");
+        }
+
+        const geoData = await geoResponse.json();
+
+        // Empty state
+        if (!geoData.results || geoData.results.length === 0) {
+            statusDiv.textContent = "No city found!";
+            statusDiv.className = "empty";
+            return;
+        }
+
+        const location = geoData.results[0];
+        const latitude = location.latitude;
+        const longitude = location.longitude;
+
+        // Fetch weather
+        const weatherUrl =
+            https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,wind_speed_10m;
+
+        const weatherResponse = await fetch(weatherUrl);
+
+        if (!weatherResponse.ok) {
+            throw new Error("Failed to fetch weather data");
+        }
+
+        const weatherData = await weatherResponse.json();
+
+        // Empty state
+        if (!weatherData.current) {
+            statusDiv.textContent = "Weather data is unavailable.";
+            statusDiv.className = "empty";
+            return;
+        }
+
+        // Success state
+        statusDiv.textContent = "Weather loaded successfully!";
+        statusDiv.className = "";
+
+        weatherDiv.innerHTML = `
+            <div class="weather-card">
+                <h2>${location.name}, ${location.country}</h2>
+                <h1>${weatherData.current.temperature_2m}°C</h1>
+                <p>Humidity: ${weatherData.current.relative_humidity_2m}%</p>
+                <p>Wind Speed: ${weatherData.current.wind_speed_10m} km/h</p>
+            </div>
+        `;
+
+    } catch (error) {
+        // Error state
+        statusDiv.textContent = "Something went wrong. Please try again.";
+        statusDiv.className = "error";
+
+        console.error(error);
+    }
+}
+
+// Search button
+searchBtn.addEventListener("click", () => {
+    const city = cityInput.value.trim();
+
+    if (city === "") {
+        statusDiv.textContent = "Please enter a city name.";
+        statusDiv.className = "error";
+        return;
+    }
+
+    getWeather(city);
+});
+
+// Enter key
+cityInput.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+        searchBtn.click();
+    }
+});
