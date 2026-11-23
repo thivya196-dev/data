@@ -1,0 +1,1 @@
+Performance: This component loads a large image without optimization. Consider using Next.js Image or an optimized image format such as WebP to reduce page load time and improve LCP.
