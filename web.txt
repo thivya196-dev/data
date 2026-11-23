@@ -1,0 +1,20 @@
+use client";
+
+import { useEffect } from "react";
+import { onCLS, onINP, onLCP } from "web-vitals";
+
+export default function WebVitals() {
+  useEffect(() => {
+    function logMetric(metric: any) {
+      console.log("Web Vital:", metric.name);
+      console.log("Value:", metric.value);
+      console.log("Rating:", metric.rating);
+    }
+
+    onLCP(logMetric);
+    onINP(logMetric);
+    onCLS(logMetric);
+  }, []);
+
+  return null;
+}
