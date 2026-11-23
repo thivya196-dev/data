@@ -1,0 +1,19 @@
+TypeScript
+"use client";
+
+import { useEffect, useState } from "react";
+
+export default function CSRPage() {
+  const [message, setMessage] = useState("Loading...");
+
+  useEffect(() => {
+    setMessage("Hello! This page is rendered in the browser.");
+  }, []);
+
+  return (
+    <main>
+      <h1>Client-Side Rendering</h1>
+      <p>{message}</p>
+    </main>
+  );
+}
